@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ambient Sound Mixer</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --accent-color: #38bdf8;
+            --text-color: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f172a, #1e1b4b);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 450px;
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 1.8rem;
+            margin-bottom: 24px;
+            font-weight: 600;
+            letter-spacing: -0.025em;
+        }
+
+        .track-section {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .track-title {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+
+        select {
+            width: 100%;
+            padding: 12px;
+            background: #0f172a;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: var(--text-color);
+            font-size: 1rem;
+            margin-bottom: 12px;
+            outline: none;
+            appearance: none;
+            -webkit-appearance: none;
+        }
+
+        .volume-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .volume-container span {
+            font-size: 1.2rem;
+            width: 24px;
+            text-align: center;
+        }
+
+        input[type="range"] {
+            flex: 1;
+            accent-color: var(--accent-color);
+            height: 6px;
+            border-radius: 3px;
+            outline: none;
+        }
+
+        .timer-section {
+            margin-bottom: 24px;
+        }
+
+        .timer-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+
+        .timer-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-color);
+            padding: 10px 0;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .timer-btn.active {
+            background: var(--accent-color);
+            color: #000;
+            font-weight: 600;
+            border-color: var(--accent-color);
+        }
+
+        .countdown {
+            text-align: center;
+            font-size: 1.1rem;
+            margin-top: 12px;
+            color: var(--accent-color);
+            font-variant-numeric: tabular-nums;
+            height: 24px;
+        }
+
+        .main-controls {
+            display: flex;
+            justify-content: center;
+        }
+
+        .play-btn {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            border: none;
+            background: var(--text-color);
+            color: #0f172a;
+            font-size: 1.8rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(255,255,255,0.2);
+            transition: transform 0.2s, background-color 0.2s;
+        }
+
+        .play-btn:active {
+            transform: scale(0.95);
+        }
+
+        .play-btn.playing {
+            background: #ef4444;
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Atmosphere Mixer</h1>
+
+        <div class="track-section">
+            <div class="track-title">Track 1: Environment</div>
+            <select id="track1-select">
+                <option value="https://assets.mixkit.co/active_storage/sfx/2433/2433-84.wav">🌧️ Rain</option>
+                <option value="https://assets.mixkit.co/active_storage/sfx/2526/2526-84.wav">🌊 Flowing Water</option>
+                <option value="https://assets.mixkit.co/active_storage/sfx/1183/1183-84.wav">💨 Wind</option>
+                <option value="https://assets.mixkit.co/active_storage/sfx/2438/2438-84.wav">🔥 Crackling Fire</option>
+            </select>
+            <div class="volume-container">
+                <span>🔈</span>
+                <input type="range" id="track1-volume" min="0" max="1" step="0.01" value="0.7">
+                <span>🔊</span>
+            </div>
+        </div>
+
+        <div class="track-section">
+            <div class="track-title">Track 2: Ambience</div>
+            <select id="track2-select">
+                <option value="https://assets.mixkit.co/active_storage/sfx/1187/1187-84.wav">🌲 Forest Sounds</option>
+                <option value="https://assets.mixkit.co/active_storage/sfx/1202/1202-84.wav">🦉 Distant Animals (Night)</option>
+                <option value="https://assets.mixkit.co/active_storage/sfx/2816/2816-84.wav">🏙️ Urban Noises</option>
+            </select>
+            <div class="volume-container">
+                <span>🔈</span>
+                <input type="range" id="track2-volume" min="0" max="1" step="0.01" value="0.5">
+                <span>🔊</span>
+            </div>
+        </div>
+
+        <div class="timer-section">
+            <div class="track-title" style="text-align: center;">Sleep Timer</div>
+            <div class="timer-grid">
+                <button class="timer-btn" data-time="5">5 Min</button>
+                <button class="timer-btn" data-time="10">10 Min</button>
+                <button class="timer-btn" data-time="30">30 Min</button>
+                <button class="timer-btn active" data-time="∞">Inf</button>
+            </div>
+            <div class="countdown" id="countdown-display"></div>
+        </div>
+
+        <div class="main-controls">
+            <button class="play-btn" id="master-play">▶</button>
+        </div>
+    </div>
+
+    <audio id="audio1" loop crossorigin="anonymous"></audio>
+    <audio id="audio2" loop crossorigin="anonymous"></audio>
+
+    <script>
+        const audio1 = document.getElementById('audio1');
+        const audio2 = document.getElementById('audio2');
+        
+        const track1Select = document.getElementById('track1-select');
+        const track2Select = document.getElementById('track2-select');
+        
+        const track1Vol = document.getElementById('track1-volume');
+        const track2Vol = document.getElementById('track2-volume');
+        
+        const masterPlayBtn = document.getElementById('master-play');
+        const timerButtons = document.querySelectorAll('.timer-btn');
+        const countdownDisplay = document.getElementById('countdown-display');
+
+        let isPlaying = false;
+        let timerDuration = Infinity; // In seconds
+        let timerId = null;
+        let timeRemaining = 0;
+
+        // Sync Audio Sources
+        function updateSources() {
+            audio1.src = track1Select.value;
+            audio2.src = track2Select.value;
+            // If it was playing, changing source stops it, so restart if necessary
+            if (isPlaying) {
+                audio1.play().catch(e => console.log("Audio load delay"));
+                audio2.play().catch(e => console.log("Audio load delay"));
+            }
+        }
+
+        track1Select.addEventListener('change', updateSources);
+        track2Select.addEventListener('change', updateSources);
+
+        // Sync Volumes
+        track1Vol.addEventListener('input', (e) => audio1.volume = e.target.value);
+        track2Vol.addEventListener('input', (e) => audio2.volume = e.target.value);
+
+        // Initialize defaults
+        audio1.volume = track1Vol.value;
+        audio2.volume = track2Vol.value;
+        updateSources();
+
+        // Master Play/Pause Toggle
+        masterPlayBtn.addEventListener('click', () => {
+            if (isPlaying) {
+                pauseApp();
+            } else {
+                playApp();
+            }
+        });
+
+        function playApp() {
+            isPlaying = true;
+            masterPlayBtn.textContent = '⏸';
+            masterPlayBtn.classList.add('playing');
+            
+            audio1.play();
+            audio2.play();
+
+            if (timerDuration !== Infinity) {
+                if (timeRemaining <= 0) {
+                    timeRemaining = timerDuration;
+                }
+                startCountdown();
+            }
+        }
+
+        function pauseApp() {
+            isPlaying = false;
+            masterPlayBtn.textContent = '▶';
+            masterPlayBtn.classList.remove('playing');
+            
+            audio1.pause();
+            audio2.pause();
+            
+            clearInterval(timerId);
+        }
+
+        // Timer Logic
+        timerButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                timerButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+
+                const val = btn.getAttribute('data-time');
+                if (val === '∞') {
+                    timerDuration = Infinity;
+                    timeRemaining = 0;
+                    countdownDisplay.textContent = '';
+                    clearInterval(timerId);
+                } else {
+                    timerDuration = parseInt(val) * 60;
+                    timeRemaining = timerDuration;
+                    if (isPlaying) {
+                        startCountdown();
+                    } else {
+                        displayTime(timeRemaining);
+                    }
+                }
+            });
+        });
+
+        function startCountdown() {
+            clearInterval(timerId);
+            displayTime(timeRemaining);
+            
+            timerId = setInterval(() => {
+                timeRemaining--;
+                displayTime(timeRemaining);
+
+                if (timeRemaining <= 0) {
+                    clearInterval(timerId);
+                    pauseApp();
+                    countdownDisplay.textContent = "Timer finished";
+                }
+            }, 1000);
+        }
+
+        function displayTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            countdownDisplay.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+    </script>
+</body>
+</html>
