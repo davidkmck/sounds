@@ -1,9 +1,9 @@
-const CACHE_NAME = 'atmosphere-mixer-v1';
+const CACHE_NAME = 'atmosphere-mixer-v2';
 const ASSETS = [
-  './',
-  './index.html',
-  './manifest.json',
-  './3bf3e2ed-ac3b-4d16-83b8-4eb254554f25.jpg'
+  '/sounds/',
+  '/sounds/index.html',
+  '/sounds/manifest.json',
+  '/sounds/3bf3e2ed-ac3b-4d16-83b8-4eb254554f25.jpg'
 ];
 
 // Install Service Worker and cache core assets
@@ -30,7 +30,7 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Corrected Fetch Strategy
+// Fetch strategy
 self.addEventListener('fetch', (event) => {
   event.respondWith(
     fetch(event.request).catch(() => {
