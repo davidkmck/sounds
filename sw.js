@@ -30,7 +30,7 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Network-first falling back to cache fetch strategy
+// Corrected Fetch Strategy
 self.addEventListener('fetch', (event) => {
   event.respondWith(
     fetch(event.request).catch(() => {
