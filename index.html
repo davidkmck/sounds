@@ -180,10 +180,10 @@
         <div class="track-section">
             <div class="track-title">Track 1: Environment</div>
             <select id="track1-select">
-                <option value="https://assets.mixkit.co/active_storage/sfx/2433/2433-84.wav">🌧️ Rain</option>
-                <option value="https://assets.mixkit.co/active_storage/sfx/2526/2526-84.wav">🌊 Flowing Water</option>
-                <option value="https://assets.mixkit.co/active_storage/sfx/1183/1183-84.wav">💨 Wind</option>
-                <option value="https://assets.mixkit.co/active_storage/sfx/2438/2438-84.wav">🔥 Crackling Fire</option>
+                <option value="https://upload.wikimedia.org/wikipedia/commons/5/5a/Rain_on_roof_loop.ogg">🌧️ Rain</option>
+                <option value="https://upload.wikimedia.org/wikipedia/commons/0/08/Small_stream_in_forest.ogg">🌊 Flowing Water</option>
+                <option value="https://upload.wikimedia.org/wikipedia/commons/a/ae/Wind_howling_at_the_window.ogg">💨 Wind</option>
+                <option value="https://upload.wikimedia.org/wikipedia/commons/5/52/Campfire_crackling.ogg">🔥 Crackling Fire</option>
             </select>
             <div class="volume-container">
                 <span>🔈</span>
@@ -195,9 +195,9 @@
         <div class="track-section">
             <div class="track-title">Track 2: Ambience</div>
             <select id="track2-select">
-                <option value="https://assets.mixkit.co/active_storage/sfx/1187/1187-84.wav">🌲 Forest Sounds</option>
-                <option value="https://assets.mixkit.co/active_storage/sfx/1202/1202-84.wav">🦉 Distant Animals (Night)</option>
-                <option value="https://assets.mixkit.co/active_storage/sfx/2816/2816-84.wav">🏙️ Urban Noises</option>
+                <option value="https://upload.wikimedia.org/wikipedia/commons/c/c5/Spring_birds_in_the_forest.ogg">🌲 Forest Sounds</option>
+                <option value="https://upload.wikimedia.org/wikipedia/commons/7/7f/Crater_Lake_National_Park_-_crickets_and_owls.ogg">🦉 Distant Animals</option>
+                <option value="https://upload.wikimedia.org/wikipedia/commons/d/df/City_park_ambience.ogg">🏙️ Urban Noises</option>
             </select>
             <div class="volume-container">
                 <span>🔈</span>
@@ -240,38 +240,43 @@
         const countdownDisplay = document.getElementById('countdown-display');
 
         let isPlaying = false;
-        let timerDuration = Infinity; // In seconds
+        let timerDuration = Infinity; 
         let timerId = null;
         let timeRemaining = 0;
 
-        // Sync Audio Sources
-        function updateSources() {
-            audio1.src = track1Select.value;
-            audio2.src = track2Select.value;
-            // If it was playing, changing source stops it, so restart if necessary
-            if (isPlaying) {
-                audio1.play().catch(e => console.log("Audio load delay"));
-                audio2.play().catch(e => console.log("Audio load delay"));
+        // Set audio source only when intended to avoid mobile pre-load blocking
+        function setSources() {
+            if (!audio1.src || audio1.src !== track1Select.value) {
+                audio1.src = track1Select.value;
+            }
+            if (!audio2.src || audio2.src !== track2Select.value) {
+                audio2.src = track2Select.value;
             }
         }
 
-        track1Select.addEventListener('change', updateSources);
-        track2Select.addEventListener('change', updateSources);
+        track1Select.addEventListener('change', () => {
+            audio1.src = track1Select.value;
+            if (isPlaying) audio1.play().catch(e => console.log(e));
+        });
 
-        // Sync Volumes
+        track2Select.addEventListener('change', () => {
+            audio2.src = track2Select.value;
+            if (isPlaying) audio2.play().catch(e => console.log(e));
+        });
+
         track1Vol.addEventListener('input', (e) => audio1.volume = e.target.value);
         track2Vol.addEventListener('input', (e) => audio2.volume = e.target.value);
 
-        // Initialize defaults
+        // Set initial volumes
         audio1.volume = track1Vol.value;
         audio2.volume = track2Vol.value;
-        updateSources();
 
-        // Master Play/Pause Toggle
+        // Play/Pause Action
         masterPlayBtn.addEventListener('click', () => {
             if (isPlaying) {
                 pauseApp();
             } else {
+                setSources(); // Load the streams safely on user gesture
                 playApp();
             }
         });
@@ -281,13 +286,12 @@
             masterPlayBtn.textContent = '⏸';
             masterPlayBtn.classList.add('playing');
             
-            audio1.play();
-            audio2.play();
+            // Promise handling required for modern browsers
+            audio1.play().catch(err => console.log("Track 1 play blocked/delayed:", err));
+            audio2.play().catch(err => console.log("Track 2 play blocked/delayed:", err));
 
             if (timerDuration !== Infinity) {
-                if (timeRemaining <= 0) {
-                    timeRemaining = timerDuration;
-                }
+                if (timeRemaining <= 0) timeRemaining = timerDuration;
                 startCountdown();
             }
         }
@@ -303,7 +307,7 @@
             clearInterval(timerId);
         }
 
-        // Timer Logic
+        // Timer Selection
         timerButtons.forEach(btn => {
             btn.addEventListener('click', () => {
                 timerButtons.forEach(b => b.classList.remove('active'));
