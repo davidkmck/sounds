@@ -67,6 +67,16 @@
             color: var(--text-muted);
             margin-bottom: 12px;
             font-weight: 700;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .pan-badge {
+            font-size: 0.75rem;
+            color: var(--accent-color);
+            background: rgba(56, 189, 248, 0.1);
+            padding: 2px 8px;
+            border-radius: 20px;
         }
 
         select {
@@ -178,12 +188,12 @@
         <h1>Atmosphere Mixer</h1>
 
         <div class="track-section">
-            <div class="track-title">Track 1: Environment</div>
+            <div class="track-title">Track 1 <span class="pan-badge">Left Ear</span></div>
             <select id="track1-select">
-                <option value="https://upload.wikimedia.org/wikipedia/commons/5/5a/Rain_on_roof_loop.ogg">🌧️ Rain</option>
-                <option value="https://upload.wikimedia.org/wikipedia/commons/0/08/Small_stream_in_forest.ogg">🌊 Flowing Water</option>
-                <option value="https://upload.wikimedia.org/wikipedia/commons/a/ae/Wind_howling_at_the_window.ogg">💨 Wind</option>
-                <option value="https://upload.wikimedia.org/wikipedia/commons/5/52/Campfire_crackling.ogg">🔥 Crackling Fire</option>
+                <option value="audio/mixkit-light-rain-loop-2393.wav">🌧️ Light Rain</option>
+                <option value="audio/mixkit-heavy-storm-rain-loop-2400.wav">⛈️ Heavy Storm</option>
+                <option value="audio/mixkit-thunderstorm-and-rain-loop-2402.wav">🌩️ Thunderstorm</option>
+                <option value="audio/mixkit-water-flowing-ambience-loop-3126.wav">🌊 Flowing Water</option>
             </select>
             <div class="volume-container">
                 <span>🔈</span>
@@ -193,11 +203,12 @@
         </div>
 
         <div class="track-section">
-            <div class="track-title">Track 2: Ambience</div>
+            <div class="track-title">Track 2 <span class="pan-badge">Right Ear</span></div>
             <select id="track2-select">
-                <option value="https://upload.wikimedia.org/wikipedia/commons/c/c5/Spring_birds_in_the_forest.ogg">🌲 Forest Sounds</option>
-                <option value="https://upload.wikimedia.org/wikipedia/commons/7/7f/Crater_Lake_National_Park_-_crickets_and_owls.ogg">🦉 Distant Animals</option>
-                <option value="https://upload.wikimedia.org/wikipedia/commons/d/df/City_park_ambience.ogg">🏙️ Urban Noises</option>
+                <option value="audio/mixkit-water-flowing-ambience-loop-3126.wav">🌊 Flowing Water</option>
+                <option value="audio/mixkit-light-rain-loop-2393.wav">🌧️ Light Rain</option>
+                <option value="audio/mixkit-heavy-storm-rain-loop-2400.wav">⛈️ Heavy Storm</option>
+                <option value="audio/mixkit-thunderstorm-and-rain-loop-2402.wav">🌩️ Thunderstorm</option>
             </select>
             <div class="volume-container">
                 <span>🔈</span>
@@ -207,7 +218,7 @@
         </div>
 
         <div class="timer-section">
-            <div class="track-title" style="text-align: center;">Sleep Timer</div>
+            <div class="track-title" style="justify-content: center;">Sleep Timer</div>
             <div class="timer-grid">
                 <button class="timer-btn" data-time="5">5 Min</button>
                 <button class="timer-btn" data-time="10">10 Min</button>
@@ -244,12 +255,44 @@
         let timerId = null;
         let timeRemaining = 0;
 
-        // Set audio source only when intended to avoid mobile pre-load blocking
+        // Web Audio API context initialization flag
+        let audioCtx = null;
+        let panner1 = null;
+        let panner2 = null;
+
+        function initAudioContext() {
+            if (audioCtx) return; // Already initialized
+
+            // Create Web Audio Context
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+            // Create source nodes from our audio tags
+            const source1 = audioCtx.createMediaElementSource(audio1);
+            const source2 = audioCtx.createMediaElementSource(audio2);
+
+            // Create Stereo Panner Nodes
+            panner1 = audioCtx.createStereoPanner();
+            panner2 = audioCtx.createStereoPanner();
+
+            // Set Pan Values: -0.6 (Mostly Left) and 0.6 (Mostly Right)
+            // Using 0.6 instead of hard 1.0 keeps it sounding natural instead of completely isolating ears
+            panner1.pan.value = -0.6;
+            panner2.pan.value = 0.6;
+
+            // Wire up Track 1: Source -> Panner -> Speakers
+            source1.connect(panner1);
+            panner1.connect(audioCtx.destination);
+
+            // Wire up Track 2: Source -> Panner -> Speakers
+            source2.connect(panner2);
+            panner2.connect(audioCtx.destination);
+        }
+
         function setSources() {
-            if (!audio1.src || audio1.src !== track1Select.value) {
+            if (!audio1.src || !audio1.src.includes(track1Select.value)) {
                 audio1.src = track1Select.value;
             }
-            if (!audio2.src || audio2.src !== track2Select.value) {
+            if (!audio2.src || !audio2.src.includes(track2Select.value)) {
                 audio2.src = track2Select.value;
             }
         }
@@ -273,10 +316,16 @@
 
         // Play/Pause Action
         masterPlayBtn.addEventListener('click', () => {
+            // Mobile Web Audio Unlock
+            initAudioContext();
+            if (audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+
             if (isPlaying) {
                 pauseApp();
             } else {
-                setSources(); // Load the streams safely on user gesture
+                setSources(); 
                 playApp();
             }
         });
@@ -286,9 +335,8 @@
             masterPlayBtn.textContent = '⏸';
             masterPlayBtn.classList.add('playing');
             
-            // Promise handling required for modern browsers
-            audio1.play().catch(err => console.log("Track 1 play blocked/delayed:", err));
-            audio2.play().catch(err => console.log("Track 2 play blocked/delayed:", err));
+            audio1.play().catch(err => console.log("Track 1 delayed:", err));
+            audio2.play().catch(err => console.log("Track 2 delayed:", err));
 
             if (timerDuration !== Infinity) {
                 if (timeRemaining <= 0) timeRemaining = timerDuration;
