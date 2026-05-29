@@ -1,4 +1,4 @@
-const CACHE_NAME = 'atmosphere-mixer-v2';
+const CACHE_NAME = 'atmosphere-mixer-v3';
 const ASSETS = [
   '/sounds/',
   '/sounds/index.html',
@@ -13,6 +13,8 @@ self.addEventListener('install', (event) => {
       return cache.addAll(ASSETS);
     })
   );
+  // Forces the waiting service worker to become the active service worker immediately
+  self.skipWaiting();
 });
 
 // Activate and clean old caches
@@ -28,6 +30,8 @@ self.addEventListener('activate', (event) => {
       );
     })
   );
+  // Forces open tabs to immediately use this new service worker
+  self.clients.claim();
 });
 
 // Fetch strategy
