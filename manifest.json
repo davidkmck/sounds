@@ -1,17 +1,23 @@
 {
   "name": "Atmosphere Mixer",
   "short_name": "Mixer",
-  "description": "An immersive dual-track ambient sound mixer.",
-  "start_url": ".",
+  "description": "An immersive dual-track ambient sound mixer with stereo panning.",
+  "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#0f172a",
   "theme_color": "#0f172a",
   "orientation": "portrait",
   "icons": [
     {
-      "src": "icon.png",
+      "src": "3bf3e2ed-ac3b-4d16-83b8-4eb254554f25.jpg",
       "sizes": "512x512",
-      "type": "image/png",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "3bf3e2ed-ac3b-4d16-83b8-4eb254554f25.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg",
       "purpose": "any maskable"
     }
   ]
