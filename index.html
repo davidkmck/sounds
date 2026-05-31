@@ -10,7 +10,8 @@
         :root {
             --bg-color: #1a1a2e;
             --container-bg: #162447;
-            --accent-color: #e43f5a;
+            --accent-color: #2b3a60; /* Sleek, dark slate blue button */
+            --accent-hover: #3b4f82;
             --text-color: #e2e8f0;
             --slider-bg: #1f4068;
         }
@@ -75,6 +76,7 @@
             cursor: pointer;
             outline: none;
             font-size: 0.9rem;
+            max-width: 60%;
         }
 
         .control-group {
@@ -106,7 +108,7 @@
             -webkit-appearance: none;
             width: 18px;
             height: 18px;
-            background: var(--accent-color);
+            background: #4e6191;
             border-radius: 50%;
             cursor: pointer;
             transition: transform 0.1s;
@@ -139,15 +141,18 @@
             border: none;
             padding: 15px;
             border-radius: 12px;
-            font-size: 1.1rem;
-            font-weight: bold;
+            font-size: 1.6rem;
             cursor: pointer;
             transition: background-color 0.2s, transform 0.1s;
-            box-shadow: 0 4px 15px rgba(228, 63, 90, 0.3);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            line-height: 1;
         }
 
         .btn-play:hover {
-            background-color: #ff4d6d;
+            background-color: var(--accent-hover);
         }
 
         .btn-play:active {
@@ -166,7 +171,8 @@
         #timer-display {
             font-family: monospace;
             font-size: 1.1rem;
-            color: var(--accent-color);
+            color: var(--text-color);
+            opacity: 0.9;
             font-weight: bold;
         }
     </style>
@@ -179,6 +185,10 @@
             <div class="track-header">
                 <label>Track 1</label>
                 <select id="track1-select">
+                    <option value="audio/mixkit-heavy-storm-rain-loop-2400.wav">Heavy Storm</option>
+                    <option value="audio/mixkit-light-rain-loop-2393.wav">Light Rain</option>
+                    <option value="audio/mixkit-thunderstorm-and-rain-loop-2402.wav">Thunderstorm</option>
+                    <option value="audio/mixkit-water-flowing-ambience-loop-3126.wav">Water Flowing</option>
                     <option value="mixkit-forest-ambience-loop-1228.wav">Forest Ambience</option>
                     <option value="mixkit-forest-heavy-rain-loop-1226.wav">Forest Heavy Rain</option>
                     <option value="mixkit-forest-rain-loop-1225.wav">Forest Rain</option>
@@ -203,10 +213,14 @@
             <div class="track-header">
                 <label>Track 2</label>
                 <select id="track2-select">
-                    <option value="mixkit-strong-wind-loop-1174.wav">Strong Wind</option>
+                    <option value="audio/mixkit-light-rain-loop-2393.wav">Light Rain</option>
+                    <option value="audio/mixkit-heavy-storm-rain-loop-2400.wav">Heavy Storm</option>
+                    <option value="audio/mixkit-thunderstorm-and-rain-loop-2402.wav">Thunderstorm</option>
+                    <option value="audio/mixkit-water-flowing-ambience-loop-3126.wav">Water Flowing</option>
                     <option value="mixkit-forest-ambience-loop-1228.wav">Forest Ambience</option>
                     <option value="mixkit-forest-heavy-rain-loop-1226.wav">Forest Heavy Rain</option>
                     <option value="mixkit-forest-rain-loop-1225.wav">Forest Rain</option>
+                    <option value="mixkit-strong-wind-loop-1174.wav">Strong Wind</option>
                     <option value="mixkit-wind-in-the-forest-loop-1233.wav">Wind in Forest</option>
                     <option value="mixkit-winter-wind-loop-1175.wav">Winter Wind</option>
                 </select>
@@ -235,7 +249,7 @@
                 </select>
                 <div id="timer-display" style="display: none;">--:--</div>
             </div>
-            <button id="play-btn" class="btn-play">PLAY</button>
+            <button id="play-btn" class="btn-play">▶</button>
         </div>
     </div>
 
@@ -305,7 +319,7 @@
                         tracks[trackKey].audio.pause();
                         tracks[trackKey].audio.src = e.target.value;
                         if (wasPlaying && isPlaying) {
-                            tracks[trackKey].audio.play().catch(err => console.log("Playback error on swap:", err));
+                            tracks[trackKey].audio.play().catch(err => console.log("Playback loop swap error:", err));
                         }
                     }
                 });
@@ -347,14 +361,14 @@
             if (!isPlaying) {
                 tracks.track1.audio.play().catch(e => console.log(e));
                 tracks.track2.audio.play().catch(e => console.log(e));
-                playBtn.textContent = 'PAUSE';
+                playBtn.textContent = '⏸';
                 isPlaying = true;
                 if (timeRemaining > 0) startTimerInterval();
                 updateMediaSessionState("playing");
             } else {
                 tracks.track1.audio.pause();
                 tracks.track2.audio.pause();
-                playBtn.textContent = 'PLAY';
+                playBtn.textContent = '▶';
                 isPlaying = false;
                 clearInterval(timerInterval);
                 updateMediaSessionState("paused");
