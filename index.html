@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -71,6 +72,7 @@
             font-weight: 700;
             display: flex;
             justify-content: space-between;
+            align-items: center;
         }
 
         .pan-badge {
@@ -79,6 +81,7 @@
             background: rgba(56, 189, 248, 0.1);
             padding: 2px 8px;
             border-radius: 20px;
+            transition: opacity 0.2s;
         }
 
         select {
@@ -95,16 +98,30 @@
             -webkit-appearance: none;
         }
 
-        .volume-container {
+        .slider-row {
             display: flex;
             align-items: center;
             gap: 10px;
+            margin-bottom: 10px;
         }
 
-        .volume-container span {
-            font-size: 1.2rem;
+        .slider-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .slider-row span {
+            font-size: 1.1rem;
             width: 24px;
             text-align: center;
+            flex-shrink: 0;
+        }
+
+        .slider-row .slider-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            width: 24px;
+            text-align: center;
+            flex-shrink: 0;
         }
 
         input[type="range"] {
@@ -190,32 +207,48 @@
         <h1>Atmosphere Mixer</h1>
 
         <div class="track-section">
-            <div class="track-title">Track 1 <span class="pan-badge">Left Ear</span></div>
+            <div class="track-title">
+                Track 1
+                <span class="pan-badge" id="pan-badge-1">Left</span>
+            </div>
             <select id="track1-select">
                 <option value="audio/mixkit-light-rain-loop-2393.wav">🌧️ Light Rain</option>
                 <option value="audio/mixkit-heavy-storm-rain-loop-2400.wav">⛈️ Heavy Storm</option>
                 <option value="audio/mixkit-thunderstorm-and-rain-loop-2402.wav">🌩️ Thunderstorm</option>
                 <option value="audio/mixkit-water-flowing-ambience-loop-3126.wav">🌊 Flowing Water</option>
             </select>
-            <div class="volume-container">
+            <div class="slider-row">
                 <span>🔈</span>
                 <input type="range" id="track1-volume" min="0" max="1" step="0.01" value="0.7">
                 <span>🔊</span>
             </div>
+            <div class="slider-row">
+                <span class="slider-label">L</span>
+                <input type="range" id="track1-pan" min="-1" max="1" step="0.01" value="-0.6">
+                <span class="slider-label">R</span>
+            </div>
         </div>
 
         <div class="track-section">
-            <div class="track-title">Track 2 <span class="pan-badge">Right Ear</span></div>
+            <div class="track-title">
+                Track 2
+                <span class="pan-badge" id="pan-badge-2">Right</span>
+            </div>
             <select id="track2-select">
                 <option value="audio/mixkit-water-flowing-ambience-loop-3126.wav">🌊 Flowing Water</option>
                 <option value="audio/mixkit-light-rain-loop-2393.wav">🌧️ Light Rain</option>
                 <option value="audio/mixkit-heavy-storm-rain-loop-2400.wav">⛈️ Heavy Storm</option>
                 <option value="audio/mixkit-thunderstorm-and-rain-loop-2402.wav">🌩️ Thunderstorm</option>
             </select>
-            <div class="volume-container">
+            <div class="slider-row">
                 <span>🔈</span>
                 <input type="range" id="track2-volume" min="0" max="1" step="0.01" value="0.5">
                 <span>🔊</span>
+            </div>
+            <div class="slider-row">
+                <span class="slider-label">L</span>
+                <input type="range" id="track2-pan" min="-1" max="1" step="0.01" value="0.6">
+                <span class="slider-label">R</span>
             </div>
         </div>
 
@@ -239,65 +272,89 @@
     <audio id="audio2" loop crossorigin="anonymous"></audio>
 
     <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('Service Worker registered!'))
+                    .catch(err => console.log('Service Worker failed: ', err));
+            });
+        }
 
-        // Register Service Worker for PWA installability
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js')
-            .then(reg => console.log('Service Worker registered!'))
-            .catch(err => console.log('Service Worker failed: ', err));
-    });
-}
         const audio1 = document.getElementById('audio1');
         const audio2 = document.getElementById('audio2');
-        
+
         const track1Select = document.getElementById('track1-select');
         const track2Select = document.getElementById('track2-select');
-        
+
         const track1Vol = document.getElementById('track1-volume');
         const track2Vol = document.getElementById('track2-volume');
-        
+
+        const track1Pan = document.getElementById('track1-pan');
+        const track2Pan = document.getElementById('track2-pan');
+
+        const panBadge1 = document.getElementById('pan-badge-1');
+        const panBadge2 = document.getElementById('pan-badge-2');
+
         const masterPlayBtn = document.getElementById('master-play');
         const timerButtons = document.querySelectorAll('.timer-btn');
         const countdownDisplay = document.getElementById('countdown-display');
 
         let isPlaying = false;
-        let timerDuration = Infinity; 
+        let timerDuration = Infinity;
         let timerId = null;
         let timeRemaining = 0;
 
-        // Web Audio API context initialization flag
         let audioCtx = null;
         let panner1 = null;
         let panner2 = null;
 
         function initAudioContext() {
-            if (audioCtx) return; // Already initialized
+            if (audioCtx) return;
 
-            // Create Web Audio Context
             audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-            // Create source nodes from our audio tags
             const source1 = audioCtx.createMediaElementSource(audio1);
             const source2 = audioCtx.createMediaElementSource(audio2);
 
-            // Create Stereo Panner Nodes
             panner1 = audioCtx.createStereoPanner();
             panner2 = audioCtx.createStereoPanner();
 
-            // Set Pan Values: -0.6 (Mostly Left) and 0.6 (Mostly Right)
-            // Using 0.6 instead of hard 1.0 keeps it sounding natural instead of completely isolating ears
-            panner1.pan.value = -0.6;
-            panner2.pan.value = 0.6;
+            panner1.pan.value = parseFloat(track1Pan.value);
+            panner2.pan.value = parseFloat(track2Pan.value);
 
-            // Wire up Track 1: Source -> Panner -> Speakers
             source1.connect(panner1);
             panner1.connect(audioCtx.destination);
 
-            // Wire up Track 2: Source -> Panner -> Speakers
             source2.connect(panner2);
             panner2.connect(audioCtx.destination);
         }
+
+        // Returns a human-readable pan label for the badge
+        function panLabel(val) {
+            const v = parseFloat(val);
+            if (v <= -0.75) return 'Hard Left';
+            if (v <= -0.25) return 'Left';
+            if (v <   0.25) return 'Center';
+            if (v <   0.75) return 'Right';
+            return 'Hard Right';
+        }
+
+        // Update panner node AND badge when slider moves
+        track1Pan.addEventListener('input', (e) => {
+            const v = parseFloat(e.target.value);
+            if (panner1) panner1.pan.value = v;
+            panBadge1.textContent = panLabel(v);
+        });
+
+        track2Pan.addEventListener('input', (e) => {
+            const v = parseFloat(e.target.value);
+            if (panner2) panner2.pan.value = v;
+            panBadge2.textContent = panLabel(v);
+        });
+
+        // Set initial badge labels
+        panBadge1.textContent = panLabel(track1Pan.value);
+        panBadge2.textContent = panLabel(track2Pan.value);
 
         function setSources() {
             if (!audio1.src || !audio1.src.includes(track1Select.value)) {
@@ -321,13 +378,10 @@ if ('serviceWorker' in navigator) {
         track1Vol.addEventListener('input', (e) => audio1.volume = e.target.value);
         track2Vol.addEventListener('input', (e) => audio2.volume = e.target.value);
 
-        // Set initial volumes
         audio1.volume = track1Vol.value;
         audio2.volume = track2Vol.value;
 
-        // Play/Pause Action
         masterPlayBtn.addEventListener('click', () => {
-            // Mobile Web Audio Unlock
             initAudioContext();
             if (audioCtx && audioCtx.state === 'suspended') {
                 audioCtx.resume();
@@ -336,7 +390,7 @@ if ('serviceWorker' in navigator) {
             if (isPlaying) {
                 pauseApp();
             } else {
-                setSources(); 
+                setSources();
                 playApp();
             }
         });
@@ -345,7 +399,7 @@ if ('serviceWorker' in navigator) {
             isPlaying = true;
             masterPlayBtn.textContent = '⏸';
             masterPlayBtn.classList.add('playing');
-            
+
             audio1.play().catch(err => console.log("Track 1 delayed:", err));
             audio2.play().catch(err => console.log("Track 2 delayed:", err));
 
@@ -359,14 +413,13 @@ if ('serviceWorker' in navigator) {
             isPlaying = false;
             masterPlayBtn.textContent = '▶';
             masterPlayBtn.classList.remove('playing');
-            
+
             audio1.pause();
             audio2.pause();
-            
+
             clearInterval(timerId);
         }
 
-        // Timer Selection
         timerButtons.forEach(btn => {
             btn.addEventListener('click', () => {
                 timerButtons.forEach(b => b.classList.remove('active'));
@@ -393,7 +446,7 @@ if ('serviceWorker' in navigator) {
         function startCountdown() {
             clearInterval(timerId);
             displayTime(timeRemaining);
-            
+
             timerId = setInterval(() => {
                 timeRemaining--;
                 displayTime(timeRemaining);
