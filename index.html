@@ -179,16 +179,12 @@
             <div class="track-header">
                 <label>Track 1</label>
                 <select id="track1-select">
-                    <option value="audio/mixkit-heavy-storm-rain-loop-2400.wav">Heavy Storm</option>
-                    <option value="audio/mixkit-light-rain-loop-2393.wav">Light Rain</option>
-                    <option value="audio/mixkit-thunderstorm-and-rain-loop-2402.wav">Thunderstorm</option>
-                    <option value="audio/mixkit-water-flowing-ambience-loop-3126.wav">Water Flowing</option>
-                    <option value="audio/mixkit-close-sea-waves-loop-1195.wav">Close Sea Waves</option>
-                    <option value="audio/mixkit-forest-heavy-rain-loop-1226.wav">Forest Heavy Rain</option>
-                    <option value="audio/mixkit-forest-rain-loop-1225.wav">Forest Rain</option>
-                    <option value="audio/mixkit-strong-wind-loop-1174.wav">Strong Wind</option>
-                    <option value="audio/mixkit-wind-in-the-forest-loop-1233.wav">Wind in Forest</option>
-                    <option value="audio/mixkit-winter-wind-loop-1175.wav">Winter Wind</option>
+                    <option value="mixkit-forest-ambience-loop-1228.wav">Forest Ambience</option>
+                    <option value="mixkit-forest-heavy-rain-loop-1226.wav">Forest Heavy Rain</option>
+                    <option value="mixkit-forest-rain-loop-1225.wav">Forest Rain</option>
+                    <option value="mixkit-strong-wind-loop-1174.wav">Strong Wind</option>
+                    <option value="mixkit-wind-in-the-forest-loop-1233.wav">Wind in Forest</option>
+                    <option value="mixkit-winter-wind-loop-1175.wav">Winter Wind</option>
                 </select>
             </div>
             <div class="control-group">
@@ -207,16 +203,12 @@
             <div class="track-header">
                 <label>Track 2</label>
                 <select id="track2-select">
-                    <option value="audio/mixkit-thunderstorm-and-rain-loop-2402.wav">Thunderstorm</option>
-                    <option value="audio/mixkit-heavy-storm-rain-loop-2400.wav">Heavy Storm</option>
-                    <option value="audio/mixkit-light-rain-loop-2393.wav">Light Rain</option>
-                    <option value="audio/mixkit-water-flowing-ambience-loop-3126.wav">Water Flowing</option>
-                    <option value="audio/mixkit-close-sea-waves-loop-1195.wav">Close Sea Waves</option>
-                    <option value="audio/mixkit-forest-heavy-rain-loop-1226.wav">Forest Heavy Rain</option>
-                    <option value="audio/mixkit-forest-rain-loop-1225.wav">Forest Rain</option>
-                    <option value="audio/mixkit-strong-wind-loop-1174.wav">Strong Wind</option>
-                    <option value="audio/mixkit-wind-in-the-forest-loop-1233.wav">Wind in Forest</option>
-                    <option value="audio/mixkit-winter-wind-loop-1175.wav">Winter Wind</option>
+                    <option value="mixkit-strong-wind-loop-1174.wav">Strong Wind</option>
+                    <option value="mixkit-forest-ambience-loop-1228.wav">Forest Ambience</option>
+                    <option value="mixkit-forest-heavy-rain-loop-1226.wav">Forest Heavy Rain</option>
+                    <option value="mixkit-forest-rain-loop-1225.wav">Forest Rain</option>
+                    <option value="mixkit-wind-in-the-forest-loop-1233.wav">Wind in Forest</option>
+                    <option value="mixkit-winter-wind-loop-1175.wav">Winter Wind</option>
                 </select>
             </div>
             <div class="control-group">
@@ -248,13 +240,11 @@
     </div>
 
     <script>
-        // Web Audio API setup
         let audioCtx = null;
         let isPlaying = false;
         let timerInterval = null;
         let timeRemaining = 0;
 
-        // Track setups structures
         const tracks = {
             track1: { audio: null, source: null, gainNode: null, pannerNode: null, elementId: 'track1' },
             track2: { audio: null, source: null, gainNode: null, pannerNode: null, elementId: 'track2' }
@@ -279,21 +269,17 @@
             track.source = audioCtx.createMediaElementSource(track.audio);
             track.gainNode = audioCtx.createGain();
             
-            // Stereo Panner Node setup
             if (audioCtx.createStereoPanner) {
                 track.pannerNode = audioCtx.createStereoPanner();
             } else {
-                // Fallback to older 3D panner logic for older Safari compatibility
                 track.pannerNode = audioCtx.createPanner();
                 track.pannerNode.panningModel = 'HRTF';
             }
 
-            // Route audio graph
             track.source.connect(track.gainNode);
             track.gainNode.connect(track.pannerNode);
             track.pannerNode.connect(audioCtx.destination);
 
-            // Establish initial volumes/pans from UI controls
             const volSlider = document.getElementById(`${track.elementId}-volume`);
             track.gainNode.gain.value = volSlider.value;
 
@@ -305,29 +291,25 @@
             if (track.pannerNode.pan) {
                 track.pannerNode.pan.value = val;
             } else {
-                // Older Web Audio API fallback pattern
                 track.pannerNode.setPosition(val, 0, 1 - Math.abs(val));
             }
         }
 
-        // DOM Listeners
         function setupEventListeners() {
             ['track1', 'track2'].forEach(id => {
                 const trackKey = id;
                 
-                // Track source updates
                 document.getElementById(`${id}-select`).addEventListener('change', (e) => {
                     if (tracks[trackKey].audio) {
                         const wasPlaying = !tracks[trackKey].audio.paused;
                         tracks[trackKey].audio.pause();
                         tracks[trackKey].audio.src = e.target.value;
                         if (wasPlaying && isPlaying) {
-                            tracks[trackKey].audio.play().catch(err => console.log("Playback interrupted asset swap:", err));
+                            tracks[trackKey].audio.play().catch(err => console.log("Playback error on swap:", err));
                         }
                     }
                 });
 
-                // Volume slider adjustments
                 document.getElementById(`${id}-volume`).addEventListener('input', (e) => {
                     const val = parseFloat(e.target.value);
                     document.getElementById(`${id}-vol-val`).textContent = `${Math.round(val * 100)}%`;
@@ -336,7 +318,6 @@
                     }
                 });
 
-                // Pan slider adjustments
                 document.getElementById(`${id}-pan`).addEventListener('input', (e) => {
                     const val = parseFloat(e.target.value);
                     let label = 'Center';
@@ -380,7 +361,6 @@
             }
         }
 
-        // Timer Logic
         function handleTimerSelect(e) {
             const minutes = parseInt(e.target.value);
             const display = document.getElementById('timer-display');
@@ -393,4 +373,61 @@
                 timeRemaining = minutes * 60;
                 display.style.display = 'block';
                 updateTimerDisplay();
-                if (isPlaying) start
+                if (isPlaying) startTimerInterval();
+            }
+        }
+
+        function startTimerInterval() {
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                timeRemaining--;
+                if (timeRemaining <= 0) {
+                    clearInterval(timerInterval);
+                    if (isPlaying) togglePlayback();
+                    document.getElementById('timer-select').value = "0";
+                    document.getElementById('timer-display').style.display = 'none';
+                } else {
+                    updateTimerDisplay();
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const mins = Math.floor(timeRemaining / 60);
+            const secs = timeRemaining % 60;
+            document.getElementById('timer-display').textContent = 
+                `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        function setupMediaSession() {
+            if ('mediaSession' in navigator) {
+                navigator.mediaSession.metadata = new MediaMetadata({
+                    title: 'Atmosphere Mixer',
+                    artist: 'Ambient Soundscape',
+                    album: 'Relaxation Mixer',
+                    artwork: [
+                        { src: 'icon.png', sizes: '512x512', type: 'image/png' }
+                    ]
+                });
+
+                navigator.mediaSession.setActionHandler('play', () => { if (!isPlaying) togglePlayback(); });
+                navigator.mediaSession.setActionHandler('pause', () => { if (isPlaying) togglePlayback(); });
+            }
+        }
+
+        function updateMediaSessionState(state) {
+            if ('mediaSession' in navigator) {
+                navigator.mediaSession.playbackState = state;
+            }
+        }
+
+        setupEventListeners();
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').catch(err => console.log('SW registration failed:', err));
+            });
+        }
+    </script>
+</body>
+</html>
