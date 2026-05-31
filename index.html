@@ -1,467 +1,396 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atmosphere Mixer</title>
     <link rel="manifest" href="manifest.json">
-    
-    <title>Ambient Sound Mixer</title>
+    <meta name="theme-color" content="#1a1a2e">
     <style>
         :root {
-            --bg-color: #0f172a;
-            --card-bg: rgba(30, 41, 59, 0.7);
-            --accent-color: #38bdf8;
-            --text-color: #f8fafc;
-            --text-muted: #94a3b8;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            -webkit-tap-highlight-color: transparent;
+            --bg-color: #1a1a2e;
+            --container-bg: #162447;
+            --accent-color: #e43f5a;
+            --text-color: #e2e8f0;
+            --slider-bg: #1f4068;
         }
 
         body {
-            background: linear-gradient(135deg, #0f172a, #1e1b4b);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
             color: var(--text-color);
-            min-height: 100vh;
             display: flex;
-            flex-direction: column;
-            align-items: center;
             justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
             padding: 20px;
+            box-sizing: border-box;
         }
 
-        .container {
+        .mixer-container {
+            background-color: var(--container-bg);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
             width: 100%;
-            max-width: 450px;
-            background: var(--card-bg);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 24px;
-            padding: 24px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            max-width: 500px;
         }
 
         h1 {
             text-align: center;
-            font-size: 1.8rem;
-            margin-bottom: 24px;
+            margin-bottom: 30px;
+            color: var(--text-color);
             font-weight: 600;
-            letter-spacing: -0.025em;
+            letter-spacing: 1px;
         }
 
-        .track-section {
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 16px;
-            padding: 16px;
+        .track-control {
+            background-color: rgba(255,255,255,0.05);
+            padding: 20px;
+            border-radius: 15px;
             margin-bottom: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        .track-title {
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--text-muted);
-            margin-bottom: 12px;
-            font-weight: 700;
+        .track-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            margin-bottom: 15px;
         }
 
-        .pan-badge {
-            font-size: 0.75rem;
-            color: var(--accent-color);
-            background: rgba(56, 189, 248, 0.1);
-            padding: 2px 8px;
-            border-radius: 20px;
-            transition: opacity 0.2s;
+        label {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.8;
         }
 
         select {
-            width: 100%;
-            padding: 12px;
-            background: #0f172a;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
+            background-color: var(--slider-bg);
             color: var(--text-color);
-            font-size: 1rem;
-            margin-bottom: 12px;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
             outline: none;
-            appearance: none;
-            -webkit-appearance: none;
+            font-size: 0.9rem;
         }
 
-        .slider-row {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 10px;
+        .control-group {
+            margin-bottom: 15px;
         }
 
-        .slider-row:last-child {
+        .control-group:last-child {
             margin-bottom: 0;
         }
 
-        .slider-row span {
-            font-size: 1.1rem;
-            width: 24px;
-            text-align: center;
-            flex-shrink: 0;
-        }
-
-        .slider-row .slider-label {
-            font-size: 0.7rem;
-            color: var(--text-muted);
-            width: 24px;
-            text-align: center;
-            flex-shrink: 0;
+        .control-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 0.85rem;
+            opacity: 0.7;
         }
 
         input[type="range"] {
-            flex: 1;
-            accent-color: var(--accent-color);
+            -webkit-appearance: none;
+            width: 100%;
             height: 6px;
+            background: var(--slider-bg);
             border-radius: 3px;
             outline: none;
         }
 
-        .timer-section {
-            margin-bottom: 24px;
-        }
-
-        .timer-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 8px;
-        }
-
-        .timer-btn {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: var(--text-color);
-            padding: 10px 0;
-            border-radius: 12px;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .timer-btn.active {
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
             background: var(--accent-color);
-            color: #000;
-            font-weight: 600;
-            border-color: var(--accent-color);
-        }
-
-        .countdown {
-            text-align: center;
-            font-size: 1.1rem;
-            margin-top: 12px;
-            color: var(--accent-color);
-            font-variant-numeric: tabular-nums;
-            height: 24px;
-        }
-
-        .main-controls {
-            display: flex;
-            justify-content: center;
-        }
-
-        .play-btn {
-            width: 70px;
-            height: 70px;
             border-radius: 50%;
-            border: none;
-            background: var(--text-color);
-            color: #0f172a;
-            font-size: 1.8rem;
             cursor: pointer;
+            transition: transform 0.1s;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        .pan-container {
             display: flex;
             align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 15px rgba(255,255,255,0.2);
-            transition: transform 0.2s, background-color 0.2s;
+            gap: 10px;
         }
 
-        .play-btn:active {
-            transform: scale(0.95);
+        .pan-slider {
+            flex-grow: 1;
         }
 
-        .play-btn.playing {
-            background: #ef4444;
-            color: #fff;
-            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+        .master-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .btn-play {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            box-shadow: 0 4px 15px rgba(228, 63, 90, 0.3);
+        }
+
+        .btn-play:hover {
+            background-color: #ff4d6d;
+        }
+
+        .btn-play:active {
+            transform: scale(0.98);
+        }
+
+        .timer-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: rgba(255,255,255,0.05);
+            padding: 15px 20px;
+            border-radius: 12px;
+        }
+
+        #timer-display {
+            font-family: monospace;
+            font-size: 1.1rem;
+            color: var(--accent-color);
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
-
-    <div class="container">
+    <div class="mixer-container">
         <h1>Atmosphere Mixer</h1>
-
-        <div class="track-section">
-            <div class="track-title">
-                Track 1
+        
+        <div class="track-control">
+            <div class="track-header">
+                <label>Track 1</label>
+                <select id="track1-select">
+                    <option value="audio/mixkit-heavy-storm-rain-loop-2400.wav">Heavy Storm</option>
+                    <option value="audio/mixkit-light-rain-loop-2393.wav">Light Rain</option>
+                    <option value="audio/mixkit-thunderstorm-and-rain-loop-2402.wav">Thunderstorm</option>
+                    <option value="audio/mixkit-water-flowing-ambience-loop-3126.wav">Water Flowing</option>
+                    <option value="audio/mixkit-close-sea-waves-loop-1195.wav">Close Sea Waves</option>
+                    <option value="audio/mixkit-forest-heavy-rain-loop-1226.wav">Forest Heavy Rain</option>
+                    <option value="audio/mixkit-forest-rain-loop-1225.wav">Forest Rain</option>
+                    <option value="audio/mixkit-strong-wind-loop-1174.wav">Strong Wind</option>
+                    <option value="audio/mixkit-wind-in-the-forest-loop-1233.wav">Wind in Forest</option>
+                    <option value="audio/mixkit-winter-wind-loop-1175.wav">Winter Wind</option>
+                </select>
             </div>
-            <select id="track1-select">
-                <option value="audio/mixkit-light-rain-loop-2393.wav">🌧️ Light Rain</option>
-                <option value="audio/mixkit-heavy-storm-rain-loop-2400.wav">⛈️ Heavy Storm</option>
-                <option value="audio/mixkit-thunderstorm-and-rain-loop-2402.wav">🌩️ Thunderstorm</option>
-                <option value="audio/mixkit-water-flowing-ambience-loop-3126.wav">🌊 Flowing Water</option>
-            </select>
-            <div class="slider-row">
-                <span>🔈</span>
-                <input type="range" id="track1-volume" min="0" max="1" step="0.01" value="0.7">
-                <span>🔊</span>
+            <div class="control-group">
+                <div class="control-label"><span>Volume</span><span id="track1-vol-val">80%</span></div>
+                <input type="range" id="track1-volume" min="0" max="1" step="0.01" value="0.8">
             </div>
-            <div class="slider-row">
-                <span class="slider-label">L</span>
-                <input type="range" id="track1-pan" min="-1" max="1" step="0.01" value="-0.6">
-                <span class="slider-label">R</span>
+            <div class="control-group">
+                <div class="control-label"><span>Pan</span><span id="track1-pan-val">Center</span></div>
+                <div class="pan-container">
+                    <input type="range" id="track1-pan" class="pan-slider" min="-1" max="1" step="0.1" value="0">
+                </div>
             </div>
         </div>
 
-        <div class="track-section">
-            <div class="track-title">
-                Track 2
+        <div class="track-control">
+            <div class="track-header">
+                <label>Track 2</label>
+                <select id="track2-select">
+                    <option value="audio/mixkit-thunderstorm-and-rain-loop-2402.wav">Thunderstorm</option>
+                    <option value="audio/mixkit-heavy-storm-rain-loop-2400.wav">Heavy Storm</option>
+                    <option value="audio/mixkit-light-rain-loop-2393.wav">Light Rain</option>
+                    <option value="audio/mixkit-water-flowing-ambience-loop-3126.wav">Water Flowing</option>
+                    <option value="audio/mixkit-close-sea-waves-loop-1195.wav">Close Sea Waves</option>
+                    <option value="audio/mixkit-forest-heavy-rain-loop-1226.wav">Forest Heavy Rain</option>
+                    <option value="audio/mixkit-forest-rain-loop-1225.wav">Forest Rain</option>
+                    <option value="audio/mixkit-strong-wind-loop-1174.wav">Strong Wind</option>
+                    <option value="audio/mixkit-wind-in-the-forest-loop-1233.wav">Wind in Forest</option>
+                    <option value="audio/mixkit-winter-wind-loop-1175.wav">Winter Wind</option>
+                </select>
             </div>
-            <select id="track2-select">
-                <option value="audio/mixkit-water-flowing-ambience-loop-3126.wav">🌊 Flowing Water</option>
-                <option value="audio/mixkit-light-rain-loop-2393.wav">🌧️ Light Rain</option>
-                <option value="audio/mixkit-heavy-storm-rain-loop-2400.wav">⛈️ Heavy Storm</option>
-                <option value="audio/mixkit-thunderstorm-and-rain-loop-2402.wav">🌩️ Thunderstorm</option>
-            </select>
-            <div class="slider-row">
-                <span>🔈</span>
+            <div class="control-group">
+                <div class="control-label"><span>Volume</span><span id="track2-vol-val">50%</span></div>
                 <input type="range" id="track2-volume" min="0" max="1" step="0.01" value="0.5">
-                <span>🔊</span>
             </div>
-            <div class="slider-row">
-                <span class="slider-label">L</span>
-                <input type="range" id="track2-pan" min="-1" max="1" step="0.01" value="0.6">
-                <span class="slider-label">R</span>
+            <div class="control-group">
+                <div class="control-label"><span>Pan</span><span id="track2-pan-val">Center</span></div>
+                <div class="pan-container">
+                    <input type="range" id="track2-pan" class="pan-slider" min="-1" max="1" step="0.1" value="0">
+                </div>
             </div>
         </div>
 
-        <div class="timer-section">
-            <div class="track-title" style="justify-content: center;">Timer</div>
-            <div class="timer-grid">
-                <button class="timer-btn" data-time="5">5 Min</button>
-                <button class="timer-btn" data-time="10">10 Min</button>
-                <button class="timer-btn" data-time="30">30 Min</button>
-                <button class="timer-btn active" data-time="∞">Inf</button>
+        <div class="master-controls">
+            <div class="timer-container">
+                <label>Timer</label>
+                <select id="timer-select">
+                    <option value="0">Off</option>
+                    <option value="15">15 Min</option>
+                    <option value="30">30 Min</option>
+                    <option value="45">45 Min</option>
+                    <option value="60">60 Min</option>
+                </select>
+                <div id="timer-display" style="display: none;">--:--</div>
             </div>
-            <div class="countdown" id="countdown-display"></div>
-        </div>
-
-        <div class="main-controls">
-            <button class="play-btn" id="master-play">▶</button>
+            <button id="play-btn" class="btn-play">PLAY</button>
         </div>
     </div>
 
-    <audio id="audio1" loop crossorigin="anonymous"></audio>
-    <audio id="audio2" loop crossorigin="anonymous"></audio>
-
     <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js')
-                    .then(reg => console.log('Service Worker registered!'))
-                    .catch(err => console.log('Service Worker failed: ', err));
-            });
-        }
-
-        const audio1 = document.getElementById('audio1');
-        const audio2 = document.getElementById('audio2');
-
-        const track1Select = document.getElementById('track1-select');
-        const track2Select = document.getElementById('track2-select');
-
-        const track1Vol = document.getElementById('track1-volume');
-        const track2Vol = document.getElementById('track2-volume');
-
-        const track1Pan = document.getElementById('track1-pan');
-        const track2Pan = document.getElementById('track2-pan');
-
-        const panBadge1 = document.getElementById('pan-badge-1');
-        const panBadge2 = document.getElementById('pan-badge-2');
-
-        const masterPlayBtn = document.getElementById('master-play');
-        const timerButtons = document.querySelectorAll('.timer-btn');
-        const countdownDisplay = document.getElementById('countdown-display');
-
+        // Web Audio API setup
+        let audioCtx = null;
         let isPlaying = false;
-        let timerDuration = Infinity;
-        let timerId = null;
+        let timerInterval = null;
         let timeRemaining = 0;
 
-        let audioCtx = null;
-        let panner1 = null;
-        let panner2 = null;
+        // Track setups structures
+        const tracks = {
+            track1: { audio: null, source: null, gainNode: null, pannerNode: null, elementId: 'track1' },
+            track2: { audio: null, source: null, gainNode: null, pannerNode: null, elementId: 'track2' }
+        };
 
-        function initAudioContext() {
-            if (audioCtx) return;
-
+        function initAudio() {
             audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
-            const source1 = audioCtx.createMediaElementSource(audio1);
-            const source2 = audioCtx.createMediaElementSource(audio2);
-
-            panner1 = audioCtx.createStereoPanner();
-            panner2 = audioCtx.createStereoPanner();
-
-            panner1.pan.value = parseFloat(track1Pan.value);
-            panner2.pan.value = parseFloat(track2Pan.value);
-
-            source1.connect(panner1);
-            panner1.connect(audioCtx.destination);
-
-            source2.connect(panner2);
-            panner2.connect(audioCtx.destination);
+            
+            setupTrack('track1');
+            setupTrack('track2');
+            setupMediaSession();
         }
 
-        // Returns a human-readable pan label for the badge
-        function panLabel(val) {
-            const v = parseFloat(val);
-            if (v <= -0.75) return 'Hard Left';
-            if (v <= -0.25) return 'Left';
-            if (v <   0.25) return 'Center';
-            if (v <   0.75) return 'Right';
-            return 'Hard Right';
-        }
+        function setupTrack(trackKey) {
+            const track = tracks[trackKey];
+            const select = document.getElementById(`${track.elementId}-select`);
+            
+            track.audio = new Audio(select.value);
+            track.audio.loop = true;
+            track.audio.crossOrigin = "anonymous";
 
-        // Update panner node AND badge when slider moves
-        track1Pan.addEventListener('input', (e) => {
-            const v = parseFloat(e.target.value);
-            if (panner1) panner1.pan.value = v;
-            panBadge1.textContent = panLabel(v);
-        });
-
-        track2Pan.addEventListener('input', (e) => {
-            const v = parseFloat(e.target.value);
-            if (panner2) panner2.pan.value = v;
-            panBadge2.textContent = panLabel(v);
-        });
-
-        // Set initial badge labels
-        panBadge1.textContent = panLabel(track1Pan.value);
-        panBadge2.textContent = panLabel(track2Pan.value);
-
-        function setSources() {
-            if (!audio1.src || !audio1.src.includes(track1Select.value)) {
-                audio1.src = track1Select.value;
+            track.source = audioCtx.createMediaElementSource(track.audio);
+            track.gainNode = audioCtx.createGain();
+            
+            // Stereo Panner Node setup
+            if (audioCtx.createStereoPanner) {
+                track.pannerNode = audioCtx.createStereoPanner();
+            } else {
+                // Fallback to older 3D panner logic for older Safari compatibility
+                track.pannerNode = audioCtx.createPanner();
+                track.pannerNode.panningModel = 'HRTF';
             }
-            if (!audio2.src || !audio2.src.includes(track2Select.value)) {
-                audio2.src = track2Select.value;
+
+            // Route audio graph
+            track.source.connect(track.gainNode);
+            track.gainNode.connect(track.pannerNode);
+            track.pannerNode.connect(audioCtx.destination);
+
+            // Establish initial volumes/pans from UI controls
+            const volSlider = document.getElementById(`${track.elementId}-volume`);
+            track.gainNode.gain.value = volSlider.value;
+
+            const panSlider = document.getElementById(`${track.elementId}-pan`);
+            updatePanValue(track, parseFloat(panSlider.value));
+        }
+
+        function updatePanValue(track, val) {
+            if (track.pannerNode.pan) {
+                track.pannerNode.pan.value = val;
+            } else {
+                // Older Web Audio API fallback pattern
+                track.pannerNode.setPosition(val, 0, 1 - Math.abs(val));
             }
         }
 
-        track1Select.addEventListener('change', () => {
-            audio1.src = track1Select.value;
-            if (isPlaying) audio1.play().catch(e => console.log(e));
-        });
+        // DOM Listeners
+        function setupEventListeners() {
+            ['track1', 'track2'].forEach(id => {
+                const trackKey = id;
+                
+                // Track source updates
+                document.getElementById(`${id}-select`).addEventListener('change', (e) => {
+                    if (tracks[trackKey].audio) {
+                        const wasPlaying = !tracks[trackKey].audio.paused;
+                        tracks[trackKey].audio.pause();
+                        tracks[trackKey].audio.src = e.target.value;
+                        if (wasPlaying && isPlaying) {
+                            tracks[trackKey].audio.play().catch(err => console.log("Playback interrupted asset swap:", err));
+                        }
+                    }
+                });
 
-        track2Select.addEventListener('change', () => {
-            audio2.src = track2Select.value;
-            if (isPlaying) audio2.play().catch(e => console.log(e));
-        });
+                // Volume slider adjustments
+                document.getElementById(`${id}-volume`).addEventListener('input', (e) => {
+                    const val = parseFloat(e.target.value);
+                    document.getElementById(`${id}-vol-val`).textContent = `${Math.round(val * 100)}%`;
+                    if (tracks[trackKey].gainNode) {
+                        tracks[trackKey].gainNode.gain.value = val;
+                    }
+                });
 
-        track1Vol.addEventListener('input', (e) => audio1.volume = e.target.value);
-        track2Vol.addEventListener('input', (e) => audio2.volume = e.target.value);
+                // Pan slider adjustments
+                document.getElementById(`${id}-pan`).addEventListener('input', (e) => {
+                    const val = parseFloat(e.target.value);
+                    let label = 'Center';
+                    if (val < 0) label = `Left ${Math.round(Math.abs(val) * 100)}%`;
+                    if (val > 0) label = `Right ${Math.round(val * 100)}%`;
+                    document.getElementById(`${id}-pan-val`).textContent = label;
+                    
+                    if (tracks[trackKey].pannerNode) {
+                        updatePanValue(tracks[trackKey], val);
+                    }
+                });
+            });
 
-        audio1.volume = track1Vol.value;
-        audio2.volume = track2Vol.value;
+            document.getElementById('play-btn').addEventListener('click', togglePlayback);
+            document.getElementById('timer-select').addEventListener('change', handleTimerSelect);
+        }
 
-        masterPlayBtn.addEventListener('click', () => {
-            initAudioContext();
-            if (audioCtx && audioCtx.state === 'suspended') {
+        function togglePlayback() {
+            if (!audioCtx) initAudio();
+
+            if (audioCtx.state === 'suspended') {
                 audioCtx.resume();
             }
 
-            if (isPlaying) {
-                pauseApp();
+            const playBtn = document.getElementById('play-btn');
+
+            if (!isPlaying) {
+                tracks.track1.audio.play().catch(e => console.log(e));
+                tracks.track2.audio.play().catch(e => console.log(e));
+                playBtn.textContent = 'PAUSE';
+                isPlaying = true;
+                if (timeRemaining > 0) startTimerInterval();
+                updateMediaSessionState("playing");
             } else {
-                setSources();
-                playApp();
-            }
-        });
-
-        function playApp() {
-            isPlaying = true;
-            masterPlayBtn.textContent = '⏸';
-            masterPlayBtn.classList.add('playing');
-
-            audio1.play().catch(err => console.log("Track 1 delayed:", err));
-            audio2.play().catch(err => console.log("Track 2 delayed:", err));
-
-            if (timerDuration !== Infinity) {
-                if (timeRemaining <= 0) timeRemaining = timerDuration;
-                startCountdown();
+                tracks.track1.audio.pause();
+                tracks.track2.audio.pause();
+                playBtn.textContent = 'PLAY';
+                isPlaying = false;
+                clearInterval(timerInterval);
+                updateMediaSessionState("paused");
             }
         }
 
-        function pauseApp() {
-            isPlaying = false;
-            masterPlayBtn.textContent = '▶';
-            masterPlayBtn.classList.remove('playing');
+        // Timer Logic
+        function handleTimerSelect(e) {
+            const minutes = parseInt(e.target.value);
+            const display = document.getElementById('timer-display');
+            clearInterval(timerInterval);
 
-            audio1.pause();
-            audio2.pause();
-
-            clearInterval(timerId);
-        }
-
-        timerButtons.forEach(btn => {
-            btn.addEventListener('click', () => {
-                timerButtons.forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-
-                const val = btn.getAttribute('data-time');
-                if (val === '∞') {
-                    timerDuration = Infinity;
-                    timeRemaining = 0;
-                    countdownDisplay.textContent = '';
-                    clearInterval(timerId);
-                } else {
-                    timerDuration = parseInt(val) * 60;
-                    timeRemaining = timerDuration;
-                    if (isPlaying) {
-                        startCountdown();
-                    } else {
-                        displayTime(timeRemaining);
-                    }
-                }
-            });
-        });
-
-        function startCountdown() {
-            clearInterval(timerId);
-            displayTime(timeRemaining);
-
-            timerId = setInterval(() => {
-                timeRemaining--;
-                displayTime(timeRemaining);
-
-                if (timeRemaining <= 0) {
-                    clearInterval(timerId);
-                    pauseApp();
-                    countdownDisplay.textContent = "Timer finished";
-                }
-            }, 1000);
-        }
-
-        function displayTime(seconds) {
-            const mins = Math.floor(seconds / 60);
-            const secs = seconds % 60;
-            countdownDisplay.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
-        }
-    </script>
-</body>
-</html>
+            if (minutes === 0) {
+                timeRemaining = 0;
+                display.style.display = 'none';
+            } else {
+                timeRemaining = minutes * 60;
+                display.style.display = 'block';
+                updateTimerDisplay();
+                if (isPlaying) start
