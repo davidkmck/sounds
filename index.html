@@ -10,7 +10,7 @@
         :root {
             --bg-color: #1a1a2e;
             --container-bg: #162447;
-            --accent-color: #2b3a60; /* Sleek, dark slate blue button */
+            --accent-color: #2b3a60; /* Dark slate blue */
             --accent-hover: #3b4f82;
             --text-color: #e2e8f0;
             --slider-bg: #1f4068;
@@ -189,12 +189,12 @@
                     <option value="audio/mixkit-light-rain-loop-2393.wav">Light Rain</option>
                     <option value="audio/mixkit-thunderstorm-and-rain-loop-2402.wav">Thunderstorm</option>
                     <option value="audio/mixkit-water-flowing-ambience-loop-3126.wav">Water Flowing</option>
-                    <option value="mixkit-forest-ambience-loop-1228.wav">Forest Ambience</option>
-                    <option value="mixkit-forest-heavy-rain-loop-1226.wav">Forest Heavy Rain</option>
-                    <option value="mixkit-forest-rain-loop-1225.wav">Forest Rain</option>
-                    <option value="mixkit-strong-wind-loop-1174.wav">Strong Wind</option>
-                    <option value="mixkit-wind-in-the-forest-loop-1233.wav">Wind in Forest</option>
-                    <option value="mixkit-winter-wind-loop-1175.wav">Winter Wind</option>
+                    <option value="mixkit-forest-ambience-loop-1228.WAV">Forest Ambience</option>
+                    <option value="mixkit-forest-heavy-rain-loop-1226.WAV">Forest Heavy Rain</option>
+                    <option value="mixkit-forest-rain-loop-1225.WAV">Forest Rain</option>
+                    <option value="mixkit-strong-wind-loop-1174.WAV">Strong Wind</option>
+                    <option value="mixkit-wind-in-the-forest-loop-1233.WAV">Wind in Forest</option>
+                    <option value="mixkit-winter-wind-loop-1175.WAV">Winter Wind</option>
                 </select>
             </div>
             <div class="control-group">
@@ -217,12 +217,12 @@
                     <option value="audio/mixkit-heavy-storm-rain-loop-2400.wav">Heavy Storm</option>
                     <option value="audio/mixkit-thunderstorm-and-rain-loop-2402.wav">Thunderstorm</option>
                     <option value="audio/mixkit-water-flowing-ambience-loop-3126.wav">Water Flowing</option>
-                    <option value="mixkit-forest-ambience-loop-1228.wav">Forest Ambience</option>
-                    <option value="mixkit-forest-heavy-rain-loop-1226.wav">Forest Heavy Rain</option>
-                    <option value="mixkit-forest-rain-loop-1225.wav">Forest Rain</option>
-                    <option value="mixkit-strong-wind-loop-1174.wav">Strong Wind</option>
-                    <option value="mixkit-wind-in-the-forest-loop-1233.wav">Wind in Forest</option>
-                    <option value="mixkit-winter-wind-loop-1175.wav">Winter Wind</option>
+                    <option value="mixkit-forest-ambience-loop-1228.WAV">Forest Ambience</option>
+                    <option value="mixkit-forest-heavy-rain-loop-1226.WAV">Forest Heavy Rain</option>
+                    <option value="mixkit-forest-rain-loop-1225.WAV">Forest Rain</option>
+                    <option value="mixkit-strong-wind-loop-1174.WAV">Strong Wind</option>
+                    <option value="mixkit-wind-in-the-forest-loop-1233.WAV">Wind in Forest</option>
+                    <option value="mixkit-winter-wind-loop-1175.WAV">Winter Wind</option>
                 </select>
             </div>
             <div class="control-group">
@@ -319,7 +319,7 @@
                         tracks[trackKey].audio.pause();
                         tracks[trackKey].audio.src = e.target.value;
                         if (wasPlaying && isPlaying) {
-                            tracks[trackKey].audio.play().catch(err => console.log("Playback loop swap error:", err));
+                            tracks[trackKey].audio.play().catch(err => console.log("Playback error:", err));
                         }
                     }
                 });
