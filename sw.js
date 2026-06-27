@@ -1,4 +1,4 @@
-const CACHE_NAME = 'zen-zone-v2';
+const CACHE_NAME = 'zen-zone-v3';
 const ASSETS = [
   '/sounds/',
   '/sounds/index.html',
