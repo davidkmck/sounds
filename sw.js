@@ -1,4 +1,4 @@
-const CACHE_NAME = 'atmosphere-mixer-v3';
+const CACHE_NAME = 'zen-zone-v1';
 const ASSETS = [
   '/sounds/',
   '/sounds/index.html',
