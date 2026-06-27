@@ -3,7 +3,7 @@ const ASSETS = [
   '/sounds/',
   '/sounds/index.html',
   '/sounds/manifest.json',
-  '/sounds/3bf3e2ed-ac3b-4d16-83b8-4eb254554f25.jpg'
+  '/sounds/icon.pgn'
 ];
 
 // Install Service Worker and cache core assets
