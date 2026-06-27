@@ -1,9 +1,9 @@
-const CACHE_NAME = 'zen-zone-v3';
+const CACHE_NAME = 'zen-zone-v4';
 const ASSETS = [
   '/sounds/',
   '/sounds/index.html',
   '/sounds/manifest.json',
-  '/sounds/icon.pgn'
+  '/sounds/icon.png'
 ];
 
 // Install Service Worker and cache core assets
